@@ -3,10 +3,19 @@ import Web3 from "web3";
 import "./App.css";
 import WalletDisplay from "./components/WalletDisplay";
 import { INFURA_URL } from "./utils/api";
+import { METAMASK_DOWNLOAD_URL } from "./utils/constants";
 
 function App() {
     const [web3, setWeb3] = useState(null);
     const [accounts, setAccounts] = useState([]);
+
+    const showMetaMaskAlert = () => {
+        alert(
+            "MetaMask is not installed. Please consider " +
+                `installing it: ${METAMASK_DOWNLOAD_URL}`
+        );
+        window.open(METAMASK_DOWNLOAD_URL, "_blank", "noopener");
+    };
 
     useEffect(() => {
         if (window.ethereum) {
@@ -16,13 +25,14 @@ function App() {
             );
             setWeb3(web3Instance);
         } else {
-            alert(
-                "MetaMask is not installed. Please consider installing it: https://metamask.io/"
-            );
+            showMetaMaskAlert();
         }
     }, []);
 
     const connectWallet = async () => {
+        if (!window.ethereum || !web3) {
+            return showMetaMaskAlert();
+        }
         try {
             const accs = await window.ethereum.request({
                 method: "eth_requestAccounts",
